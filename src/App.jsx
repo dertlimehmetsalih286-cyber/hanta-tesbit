@@ -1,10 +1,12 @@
 
 
 import { useState } from "react";
-import UploadStep from "./components/UploadStep";
-import SymptomsStep from "./components/SymptomsStep";
-import ResultStep from "./components/ResultStep";
+import UploadStep from "./components/UploadStep.jsx";
+import SymptomsStep from "./components/SymptomsStep.jsx";
+import ResultStep from "./components/ResultStep.jsx";
 import "./App.css";
+
+// Altındaki diğer fonksiyonlar ve kodlar tamamen aynı kalacak, sadece üstteki import yollarını güncelledik.
 
 export default function App() {
   const [step, setStep] = useState("upload");
