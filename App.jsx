@@ -1,9 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat May 16 14:27:52 2026
 
-@author: Dell
-"""
 
 import { useState } from "react";
 import UploadStep from "./components/UploadStep";
