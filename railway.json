@@ -7,6 +7,8 @@
     "numReplicas": 1,
     "sleepOnInactivity": false,
     "restartPolicyType": "ON_FAILURE",
+    "buildCommand": "yarn build",
+    "startCommand": "npx serve -s dist -l 4173",
     "port": 4173
   }
 }
