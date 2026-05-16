@@ -1,9 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat May 16 14:29:34 2026
 
-@author: Dell
-"""
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
