@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat May 16 14:29:34 2026
-
-@author: Dell
-"""
 {
   "name": "hanta-virus-detector",
   "type": "module",
@@ -24,4 +18,3 @@ Created on Sat May 16 14:29:34 2026
     "vite": "^5.0.0"
   }
 }
-
