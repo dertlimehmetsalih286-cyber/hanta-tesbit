@@ -5,17 +5,17 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 
-# --- 0. FIREBASE BAĞLANTISI ---
-# Uygulama her yenilendiğinde Firebase'i tekrar tekrar başlatmamak için kontrol ediyoruz
+# ==========================================
+# 0. FIREBASE BAĞLANTISI (VERİTABANI)
+# ==========================================
 if not firebase_admin._apps:
     try:
-        # firebase-key.json dosyasını aynı klasörde arar
+        # firebase-key.json dosyasını aynı klasörde bulup bağlanır
         cred = credentials.Certificate("firebase-key.json")
         firebase_admin.initialize_app(cred)
     except Exception as e:
-        pass # Dosya yoksa veya hata varsa sessizce geç, arayüzde uyarı vereceğiz
+        pass # Dosya yoksa sessizce geç, yan menüde uyarı vereceğiz
 
-# Veritabanı objesini oluştur
 try:
     db = firestore.client()
     FIREBASE_AKTIF = True
@@ -24,7 +24,9 @@ except:
     FIREBASE_AKTIF = False
 
 
-# --- 1. SAYFA AYARLARI VE CSS ---
+# ==========================================
+# 1. SAYFA AYARLARI VE MODERN TASARIM (CSS)
+# ==========================================
 st.set_page_config(page_title="Hantavirus Risk Analyzer", page_icon="🛡️", layout="wide", initial_sidebar_state="expanded")
 
 st.markdown("""
@@ -41,7 +43,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# --- 2. SOL MENÜ (SIDEBAR) ---
+# ==========================================
+# 2. SOL MENÜ (SIDEBAR)
+# ==========================================
 with st.sidebar:
     st.markdown("### 🛡️ Hantavirus")
     st.markdown("<p style='color: #64748b; font-size: 14px; margin-top: -15px;'>Risk Analyzer</p>", unsafe_allow_html=True)
@@ -68,7 +72,9 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
 
-# --- 3. ANA SAYFALAR ---
+# ==========================================
+# 3. ANA SAYFALAR
+# ==========================================
 
 if menu == "🔍 Analyzer":
     st.title("Risk Assessment")
@@ -78,6 +84,7 @@ if menu == "🔍 Analyzer":
     col1, col2 = st.columns([1.1, 1], gap="large")
 
     with col1:
+        # 1. GÖRSEL YÜKLEME
         st.markdown("### 1. Image Upload")
         uploaded_file = st.file_uploader("Upload Image", type=['png', 'jpg', 'jpeg'], label_visibility="collapsed")
         
@@ -86,6 +93,7 @@ if menu == "🔍 Analyzer":
         else:
             st.markdown("""<div style="border: 2px dashed #cbd5e1; border-radius: 12px; padding: 30px 20px; text-align: center; background-color: #f8fafc; margin-bottom: 25px;"><h3 style="color: #94a3b8; margin-bottom: 5px;">📷 Fotoğraf Yükleyin</h3><p style="color: #94a3b8; font-size: 12px;">JPEG, PNG (Max 10MB)</p></div>""", unsafe_allow_html=True)
         
+        # 2. SEMPTOM SORGULAMA (3 GRUP HALİNDE)
         st.markdown("### 2. Semptom Değerlendirme")
         st.markdown("<p style='color: #64748b; font-size: 14px;'>Hastada aşağıdaki belirtilerden hangileri mevcut? Lütfen işaretleyin.</p>", unsafe_allow_html=True)
         
@@ -94,7 +102,7 @@ if menu == "🔍 Analyzer":
             s2 = st.checkbox("Şiddetli kas ve eklem ağrıları")
             s3 = st.checkbox("Aşırı halsizlik ve yoğun yorgunluk hissi")
             s4 = st.checkbox("Şiddetli baş ağrısı ve baş dönmesi")
-            s5 = st.checkbox("Sindirim sistemi sorunları (bulantı, kusma)")
+            s5 = st.checkbox("Sindirim sistemi sorunları (bulantı, kusma, karın ağrısı)")
 
         with st.expander("Grup 2: Solunum ve Kalp-Damar Belirtileri"):
             s6 = st.checkbox("Öksürük (genellikle kuru öksürük)")
@@ -119,10 +127,10 @@ if menu == "🔍 Analyzer":
             if uploaded_file is None:
                 st.error("⚠️ Lütfen analizi başlatmadan önce bir fotoğraf yükleyin.")
             else:
-                with st.spinner("Evaluating risk factors and extracting data..."):
+                with st.spinner("Analyzing data and generating risk profile..."):
                     time.sleep(2) 
                 
-                # Risk Hesaplama
+                # Risk Hesaplama Algoritması
                 secilen_semptom_sayisi = sum([s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13,s14,s15,s16])
                 
                 if secilen_semptom_sayisi > 3:
@@ -134,7 +142,7 @@ if menu == "🔍 Analyzer":
                     conf, level, renk = 88, "Low", "#047857"
                     badge = '<div class="risk-badge risk-low">✅ Low Risk</div>'
 
-                # --- FIREBASE KAYIT İŞLEMİ ---
+                # --- FIREBASE'E KAYDETME ---
                 if FIREBASE_AKTIF:
                     try:
                         veri = {
@@ -149,6 +157,7 @@ if menu == "🔍 Analyzer":
                     except Exception as e:
                         st.error(f"Veritabanına kayıt sırasında hata oluştu: {e}")
                 
+                # Analiz Sonuç Ekranı
                 st.markdown("### Assessment Complete")
                 st.markdown("<p style='color: #64748b; font-size: 14px;'>Today</p>", unsafe_allow_html=True)
                 st.markdown(badge, unsafe_allow_html=True)
@@ -170,12 +179,13 @@ if menu == "🔍 Analyzer":
             st.markdown("### Assessment Complete")
             st.markdown("""<div style="padding: 50px 20px; text-align: center; border: 2px dashed #e2e8f0; border-radius: 12px; background-color: #f8fafc; margin-top: 20px;"><h4 style="color: #64748b; margin-bottom: 10px;">Awaiting Input</h4><p style="color: #94a3b8; font-size: 14px;">Upload a photo, select the observed symptoms, and run the assessment to see detailed AI analysis results here.</p></div>""", unsafe_allow_html=True)
 
+
 elif menu == "🕒 History":
     st.title("Analysis History")
     st.markdown("<p style='color: #64748b; font-size: 18px;'>Review past hantavirus risk assessments from Firebase.</p>", unsafe_allow_html=True)
     st.markdown("---")
     
-    # FIREBASE'DEN GEÇMİŞİ ÇEKME
+    # FIREBASE'DEN CANLI VERİ ÇEKME
     if FIREBASE_AKTIF:
         with st.spinner("Buluttan veriler çekiliyor..."):
             analizler = db.collection("Analizler").order_by("tarih", direction=firestore.Query.DESCENDING).limit(50).stream()
@@ -194,22 +204,23 @@ elif menu == "🕒 History":
             if veri_listesi:
                 st.dataframe(veri_listesi, use_container_width=True, hide_index=True)
             else:
-                st.info("Veritabanında henüz hiç kayıt bulunmuyor.")
+                st.info("Veritabanında henüz hiç analiz kaydı bulunmuyor.")
     else:
         st.warning("Firebase bağlantısı kurulamadığı için canlı geçmiş çekilemiyor.")
+
 
 elif menu == "📊 Statistics":
     st.title("System Statistics")
     st.markdown("<p style='color: #64748b; font-size: 18px;'>Live metrics and risk distribution from Firebase.</p>", unsafe_allow_html=True)
     st.markdown("---")
     
-    # FIREBASE'DEN CANLI İSTATİSTİK HESAPLAMA
     total_analyses = 0
     high_risk = 0
     medium_risk = 0
     low_risk = 0
     total_conf = 0
 
+    # FIREBASE'DEN İSTATİSTİK HESAPLAMA
     if FIREBASE_AKTIF:
         docs = db.collection("Analizler").stream()
         for doc in docs:
