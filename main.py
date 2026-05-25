@@ -15,6 +15,36 @@ import streamlit as st
 import pandas as pd
 import streamlit as st
 import pandas as pd
+import streamlit as st
+import firebase_admin
+from firebase_admin import credentials, firestore
+import json
+import os
+
+# Firebase Başlatma Mantığı
+@st.cache_resource
+def init_firebase():
+    if not firebase_admin._apps:
+        # Render'dan gelen JSON stringini al
+        cred_json = os.environ.get("FIREBASE_SERVICE_ACCOUNT")
+        if cred_json:
+            # JSON'ı sözlüğe çevir
+            cred_dict = json.loads(cred_json)
+            cred = credentials.Certificate(cred_dict)
+            firebase_admin.initialize_app(cred)
+            st.sidebar.success("Firebase bağlandı!")
+        else:
+            st.error("Firebase anahtarı bulunamadı!")
+    return firestore.client()
+
+# Firebase'i başlat ve veritabanı istemcisini al
+db = init_firebase()
+
+# Örnek kullanım (Veri yazma)
+def kaydet(vaka_adi, durum):
+    doc_ref = db.collection("vakalar").document()
+    doc_ref.set({"vaka": vaka_adi, "sonuc": durum})
+    st.write("Veri kaydedildi!")
 
 # Veri setini yükleme fonksiyonu
 @st.cache_data  # Veriyi bir kez yükleyip bellekte tutar, hız kazandırır
