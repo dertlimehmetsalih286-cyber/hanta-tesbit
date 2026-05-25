@@ -45,7 +45,7 @@ except Exception as e:
 
 def load_data():
 
-    df = pd.read_csv("Hantavirus_chile.xlsx - Sheet1.csv")
+    df = pd.read_csv("hanta_data.csv")
 
     return df
 
