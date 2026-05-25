@@ -19,7 +19,7 @@ import pandas as pd
 # Veri setini yükleme fonksiyonu
 @st.cache_data  # Veriyi bir kez yükleyip bellekte tutar, hız kazandırır
 def load_data():
-    df = pd.read_csv("Hantavirus_chile.xlsx - Sheet1.csv")
+    df = pd.read_csv("hanta_data.csv")
     return df
 
 st.title("Hanta Virüsü Veri Analizi")
