@@ -4,6 +4,29 @@ import plotly.express as px
 import cv2
 import numpy as np
 from PIL import Image
+import streamlit as st
+import pandas as pd
+
+# Veri setini yükleme fonksiyonu
+@st.cache_data  # Veriyi bir kez yükleyip bellekte tutar, hız kazandırır
+def load_data():
+    df = pd.read_csv("Hantavirus_chile.xlsx - Sheet1.csv")
+    return df
+
+st.title("Hanta Virüsü Veri Analizi")
+
+# Veriyi çağır
+try:
+    df = load_data()
+    st.write("### Veri Seti Önizlemesi")
+    st.dataframe(df.head()) # İlk 5 satırı gösterir
+    
+    # İstersen tüm veriyi görmek için bir buton ekleyebilirsin
+    if st.checkbox("Tüm veriyi göster"):
+        st.write(df)
+        
+except Exception as e:
+    st.error(f"Veri yüklenirken hata oluştu: {e}")
 
 # 1. SAYFA AYARLARI
 st.set_page_config(
