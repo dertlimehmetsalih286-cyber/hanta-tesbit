@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat May 16 14:29:35 2026
-
-@author: Dell
-"""
-
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { Anthropic } from "npm:@anthropic-ai/sdk@0.9.0";
 
