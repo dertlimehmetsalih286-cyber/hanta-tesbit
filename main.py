@@ -185,26 +185,34 @@ elif menu == "🕒 History":
     st.markdown("<p style='color: #64748b; font-size: 18px;'>Review past hantavirus risk assessments from Firebase.</p>", unsafe_allow_html=True)
     st.markdown("---")
     
-    # FIREBASE'DEN CANLI VERİ ÇEKME
+    # FIREBASE'DEN CANLI VERİ ÇEKME (DÜZELTİLDİ: Artık takılmayacak)
     if FIREBASE_AKTIF:
         with st.spinner("Buluttan veriler çekiliyor..."):
-            analizler = db.collection("Analizler").order_by("tarih", direction=firestore.Query.DESCENDING).limit(50).stream()
-            veri_listesi = []
-            for doc in analizler:
-                data = doc.to_dict()
-                tarih_format = data.get("tarih").strftime("%Y-%m-%d %H:%M") if data.get("tarih") else "Bilinmiyor"
-                veri_listesi.append({
-                    "Tarih": tarih_format,
-                    "Risk Seviyesi": data.get("risk_seviyesi", "N/A"),
-                    "Güven Skoru": f"%{data.get('guven_skoru', 0)}",
-                    "Semptom Sayısı": data.get("semptom_sayisi", 0),
-                    "Özet": data.get("ozet", "")[:60] + "..."
-                })
+            try:
+                analizler = db.collection("Analizler").stream()
+                veri_listesi = []
+                
+                for doc in analizler:
+                    data = doc.to_dict()
+                    tarih_format = data.get("tarih").strftime("%Y-%m-%d %H:%M") if data.get("tarih") else "Bilinmiyor"
+                    veri_listesi.append({
+                        "Tarih": tarih_format,
+                        "Risk Seviyesi": data.get("risk_seviyesi", "N/A"),
+                        "Güven Skoru": f"%{data.get('guven_skoru', 0)}",
+                        "Semptom Sayısı": data.get("semptom_sayisi", 0),
+                        "Özet": data.get("ozet", "")[:60] + "..."
+                    })
+                
+                if veri_listesi:
+                    # Python tarafında verileri tersine çeviriyoruz (En yeniler en üste çıksın diye)
+                    veri_listesi.reverse()
+                    st.dataframe(veri_listesi, use_container_width=True, hide_index=True)
+                else:
+                    st.info("Veritabanında henüz hiç analiz kaydı bulunmuyor. Lütfen önce 'Analyzer' sayfasından kayıt oluşturun.")
             
-            if veri_listesi:
-                st.dataframe(veri_listesi, use_container_width=True, hide_index=True)
-            else:
-                st.info("Veritabanında henüz hiç analiz kaydı bulunmuyor.")
+            except Exception as e:
+                # Olası bir hatada sistem kilitlenmesin diye hata mesajını ekrana basıyoruz
+                st.error(f"Hata: Veriler çekilemedi. Detay: {e}")
     else:
         st.warning("Firebase bağlantısı kurulamadığı için canlı geçmiş çekilemiyor.")
 
@@ -222,15 +230,18 @@ elif menu == "📊 Statistics":
 
     # FIREBASE'DEN İSTATİSTİK HESAPLAMA
     if FIREBASE_AKTIF:
-        docs = db.collection("Analizler").stream()
-        for doc in docs:
-            d = doc.to_dict()
-            total_analyses += 1
-            total_conf += d.get("guven_skoru", 0)
-            r = d.get("risk_seviyesi", "")
-            if r == "High": high_risk += 1
-            elif r == "Medium": medium_risk += 1
-            elif r == "Low": low_risk += 1
+        try:
+            docs = db.collection("Analizler").stream()
+            for doc in docs:
+                d = doc.to_dict()
+                total_analyses += 1
+                total_conf += d.get("guven_skoru", 0)
+                r = d.get("risk_seviyesi", "")
+                if r == "High": high_risk += 1
+                elif r == "Medium": medium_risk += 1
+                elif r == "Low": low_risk += 1
+        except Exception as e:
+             st.error(f"İstatistikler hesaplanırken bir hata oluştu. Detay: {e}")
             
     avg_conf = (total_conf / total_analyses) if total_analyses > 0 else 0
     
